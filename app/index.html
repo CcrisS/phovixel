@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>My Photos</title>
+    <link rel="stylesheet" href="assets/css/app.css">
+  </head>
+  <body>
+    <h1 class="title">My Photos</h1>
+
+    <h3 class="title">Rename photos of a folder</h3>
+    <form class="form" action="scripts/rename-images.html" method="post">
+      <label>
+        <input id="photos-folder-txt" type="text" name="photos_folder" placeholder="Photos folder..." />
+        <input id="photos-folder" type="file" webkitdirectory />
+      </label><br /><br />
+
+      <button class="btn" type="submit">Send!</button>
+    </form>
+
+    <footer>
+      <!-- All of the Node.js APIs are available in this renderer process. -->
+      <p>
+        Node.js <script>document.write(process.versions.node)</script> |
+        Chromium <script>document.write(process.versions.chrome)</script> |
+        Electron <script>document.write(process.versions.electron)</script>
+      </p>
+      <p>&copy; 2015 - csd</p>
+    </footer>
+  </body>
+  <script>
+    // You can also require other files to run in this process
+    // require('./renderer.js')
+
+    // All of the Node.js APIs are available in this process.
+    let pf = document.getElementById('photos-folder');
+    let pft = document.getElementById('photos-folder-txt');
+    pf.addEventListener("change", function(e){
+      let pfFiles = pf.files;
+      if(pfFiles.length > 0){
+        pft.value = pfFiles[0].path;
+      }
+    });
+  </script>
+</html>

@@ -1,0 +1,17 @@
+node_modules
+npm-debug.log
+.idea
+/dist
+/build
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
