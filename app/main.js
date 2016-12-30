@@ -1,15 +1,16 @@
-const {app, BrowserWindow} = require('electron');
+const {app, BrowserWindow, ipcMain} = require('electron');
 const path = require('path');
 const url = require('url');
+
 //const windowStateKeeper = require('electron-window-state');
 //const pjson = require('./package.json');
 
-let win; // Keep a global reference of the window object.
+let mainWindow; // Keep a global reference of the window object.
 
 function createMainWindow () {
 
   // Create the browser window.
-  win = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     title: app.getName(),
@@ -43,16 +44,16 @@ function createMainWindow () {
   // mainWindowState.manage(win);
 
   // Load the index.html of the app.
-  win.loadURL(url.format({
+  mainWindow.loadURL(url.format({
     pathname: path.join(__dirname, 'index.html'),
     protocol: 'file:',
     slashes: true
   }));
 
-  win.webContents.openDevTools(); // Open the DevTools.
+  mainWindow.webContents.openDevTools(); // Open the DevTools.
 
-  win.on('closed', () => { // When the window is closed.
-    win = null
+  mainWindow.on('closed', () => { // When the window is closed.
+    mainWindow = null
   })
 }
 
@@ -66,7 +67,24 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => {
-  if (win === null) { // macOS: re-create a window when dock icon is clicked
+  if (mainWindow === null) { // macOS: re-create a window when dock icon is clicked
     createMainWindow()
   }
+});
+
+/**
+ * "ri" events
+ */
+// Folder selected
+let riWindow;
+ipcMain.on('ri-folder-selected', (event, params) => {
+  if (riWindow) { // opened yet
+    return;
+  }
+
+  //console.log('event listened, params: ', params);
+  riWindow = new BrowserWindow({height: 300, width: 500, parent: mainWindow});
+  riWindow.webContents.send('ri-load' , params);
+  riWindow.loadURL('file://' + __dirname + '/scripts/rename-images.html');
+  riWindow.on('closed', () => {riWindow = null});
 });

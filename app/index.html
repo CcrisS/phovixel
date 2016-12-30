@@ -9,7 +9,8 @@
     <h1 class="title">My Photos</h1>
 
     <h3 class="title">Rename photos of a folder</h3>
-    <form class="form" action="scripts/rename-images.html" method="post">
+    <!--<form class="form" action="scripts/rename-images.html" method="post">-->
+    <form class="form" action="#" method="post">
       <label>
         <input id="photos-folder-txt" type="text" name="photos_folder" placeholder="Photos folder..." />
         <input id="photos-folder" type="file" webkitdirectory />
@@ -29,16 +30,18 @@
     </footer>
   </body>
   <script>
-    // You can also require other files to run in this process
-    // require('./renderer.js')
-
-    // All of the Node.js APIs are available in this process.
     let pf = document.getElementById('photos-folder');
     let pft = document.getElementById('photos-folder-txt');
     pf.addEventListener("change", function(e){
       let pfFiles = pf.files;
       if(pfFiles.length > 0){
         pft.value = pfFiles[0].path;
+
+        // send event to main window
+        const {ipcRenderer} = require('electron');
+        let params = {'folder': pfFiles[0].path};
+        console.log('send event to main window', params);
+        ipcRenderer.send('ri-folder-selected', params);
       }
     });
   </script>
