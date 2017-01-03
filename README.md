@@ -6,10 +6,9 @@
 
 #### toDo
 
-- [ ] Pasar event a main process `'ri-folder-selected'` que abra una nueva ventana con el `folder` como parámetro.
-- [ ] [Reading...](https://medium.com/developers-writing/building-a-desktop-application-with-electron-204203eeb658#.2a2jd3msv) `#Storing and reading user settings`
-- [ ] Include jQuery
-- [ ] Visit [Nodejs: rename set of images-pictures](http://krasimirtsonev.com/blog/article/Using-Nodejs-to-rename-set-of-images-pictures-to-lowercase)
+- [ ] Pasar event a main process `'ri-folder-selected'` que abra
+una nueva ventana con el `folder` como parámetro.
+- [x] Include jQuery
 - [x] Include promises in `index.html`
 - [ ] Each "promise" returns `(err, param)`
 - [ ] Manage videos

@@ -1,38 +1,43 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>My Photos</title>
-    <link rel="stylesheet" href="assets/css/app.css">
-  </head>
-  <body>
-    <h1 class="title">My Photos</h1>
+    <head>
+        <meta charset="UTF-8">
+        <title>Manage Photos</title>
+        <link rel="stylesheet" href="assets/css/app.css">
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
+    </head>
+    <body>
+        <h1 class="title">Manage Photos</h1>
 
-    <h3 class="title">Rename photos of a folder</h3>
-    <!--<form class="form" action="scripts/rename-images.html" method="post">-->
-    <form class="form" action="#" method="post">
-      <label>
-        <!--<input id="photos-folder-txt" type="text" name="photos_folder" placeholder="Photos folder..." />-->
-        <input id="photos-folder" type="file" webkitdirectory />
-      </label><br /><br />
+        <h3 class="title">Rename photos of a folder</h3>
+        <!--<form class="form" action="scripts/rename-images.html" method="post">-->
+        <form class="form" action="#" method="post">
+            <!--<input id="photos-folder-txt" type="text" name="photos_folder" placeholder="Photos folder..." />-->
+            <!--<input id="photos-folder" type="file" webkitdirectory />-->
+            <label class="custom-file-upload">
+                <input id="photos-folder" type="file" webkitdirectory />
+                <i class="fa fa-folder-open"></i> Select folder
+            </label>
+            <label>
+                <input type="checkbox" id="do-rename" name="do-rename" value="1" /> Do rename
+            </label>
+            <br /><br />
+            <!--<button class="btn" type="submit">Send!</button>-->
+        </form>
+        <hr />
+        <section id="files">
+          <h4 class="title"></h4>
+        </section>
 
-      <button class="btn" type="submit">Send!</button>
-    </form>
-
-    <hr />
-    <section id="files">
-      <h4 class="title"></h4>
-    </section>
-
-    <footer>
-      <!-- All of the Node.js APIs are available in this renderer process. -->
-      <p>
-        Node.js <script>document.write(process.versions.node)</script> |
-        Chromium <script>document.write(process.versions.chrome)</script> |
-        Electron <script>document.write(process.versions.electron)</script>
-      </p>
-      <p>&copy; 2015 - csd</p>
-    </footer>
+        <footer>
+            <!-- All of the Node.js APIs are available in this renderer process. -->
+            <p>
+                Node.js <script>document.write(process.versions.node)</script> |
+                Chromium <script>document.write(process.versions.chrome)</script> |
+                Electron <script>document.write(process.versions.electron)</script>
+            </p>
+            <p>&copy; 2015 - csd</p>
+        </footer>
   </body>
   <script>window.$ = window.jQuery = require('jquery');</script>
   <script>
@@ -159,19 +164,23 @@
           let d = $.Deferred();
           let newName = getNewFileName(fileName, takenDate);
 
-          // rename...
-          if(newName){
-              let newFilePath = filePath.replace(fileName, newName);
-              fs.rename(filePath, newFilePath, (err) => {
-                  if (err == null){
-                      d.resolve(newName);
-                  } else {
-                      console.log('ERROR: ' + err);
-                      d.reject();
-                  }
-              });
+          if($('#do-rename').is(':checked')){
+              // rename...
+              if(newName){
+                  let newFilePath = filePath.replace(fileName, newName);
+                  fs.rename(filePath, newFilePath, (err) => {
+                      if (err == null){
+                          d.resolve(newName);
+                      } else {
+                          console.log('ERROR: ' + err);
+                          d.reject();
+                      }
+                  });
+              } else {
+                  d.reject();
+              }
           } else {
-              d.reject();
+              d.resolve(newName); // only show the new name
           }
 
           return d.promise();
