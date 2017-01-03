@@ -7,21 +7,22 @@
 </head>
 <body>
 <h1 class="title">My Photos</h1>
-
-<h3 class="title">Rename photos of a folder</h3>
-
+<h3 class="title">Rename photos of a folder:
+    <span id="folder"></span>
+</h3>
 
 </body>
-<script>
+<script type="application/javascript">
     const {ipcRenderer} = require('electron');
     ipcRenderer.on('ri-load', (event, params) => {
-        console.log('ri.html, params: ', params);
-        $('h3.title').text(params.folder);
+        document.getElementById('folder').innerHTML = params.folder;
+
+
     });
 
 
-    // You can also require other files to run in this process
-    // require('./rename-photos-renderer.js')
+    // require other files to run in this process
+    require('./scripts/rename-images.js');
 
     // console.log(global.location.search);
 

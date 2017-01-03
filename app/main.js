@@ -11,7 +11,7 @@ function createMainWindow () {
 
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 800,
+    width: 1000,
     height: 600,
     title: app.getName(),
     icon: path.join(__dirname, '/app/assets/img/icon.png')
@@ -84,7 +84,9 @@ ipcMain.on('ri-folder-selected', (event, params) => {
 
   //console.log('event listened, params: ', params);
   riWindow = new BrowserWindow({height: 300, width: 500, parent: mainWindow});
-  riWindow.webContents.send('ri-load' , params);
   riWindow.loadURL('file://' + __dirname + '/scripts/rename-images.html');
+  riWindow.webContents.on('did-finish-load', () => {
+    riWindow.webContents.send('ri-load' , params);
+  });
   riWindow.on('closed', () => {riWindow = null});
 });
