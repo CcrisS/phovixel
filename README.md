@@ -13,3 +13,4 @@ una nueva ventana con el `folder` como parámetro.
 - [ ] Each "promise" returns `(err, param)`
 - [ ] Manage videos
 - [ ] Get folder separator caracter `(/|\)`
+- [ ] require('electron-window-state');

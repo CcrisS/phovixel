@@ -10,10 +10,8 @@
         <h1 class="title">Manage Photos</h1>
 
         <h3 class="title">Rename photos of a folder</h3>
-        <!--<form class="form" action="scripts/rename-images.html" method="post">-->
-        <form class="form" action="#" method="post">
+        <form class="form" action="#">
             <!--<input id="photos-folder-txt" type="text" name="photos_folder" placeholder="Photos folder..." />-->
-            <!--<input id="photos-folder" type="file" webkitdirectory />-->
             <label class="custom-file-upload">
                 <input id="photos-folder" type="file" webkitdirectory />
                 <i class="fa fa-folder-open"></i> Select folder
@@ -22,7 +20,7 @@
                 <input type="checkbox" id="do-rename" name="do-rename" value="1" /> Do rename
             </label>
             <br /><br />
-            <!--<button class="btn" type="submit">Send!</button>-->
+            <!--<button class="btn" type="submit">Rename!</button>-->
         </form>
         <hr />
         <section id="files">
@@ -42,8 +40,19 @@
   <script>window.$ = window.jQuery = require('jquery');</script>
   <script>
 
-      let ExifImage = require('exif').ExifImage;
-      let fs = require('fs');
+      let $pf = $('#photos-folder');
+      $pf.on('change', (e) => {
+          let selectedFolder = getFolder($pf);
+
+          // send event to main window
+          if(selectedFolder){
+              const {ipcRenderer} = require('electron');
+              let params = {'folder': selectedFolder, 'doRename': $('#do-rename').is(':checked')};
+              console.log('send event to main window', params);
+              ipcRenderer.send('ri-folder-selected', params);
+          }
+      });
+
 
       /**
        * Get selected folder
@@ -52,178 +61,12 @@
        */
       function getFolder($folderInput)
       {
-          let d = $.Deferred();
           let pfFiles = $folderInput.prop('files');
           if(pfFiles.length > 0) {
-              var selectedFolder = pfFiles[0].path;
-              $('#files .title').text('Folder: ' + selectedFolder);
-              d.resolve(selectedFolder);
+              return pfFiles[0].path;
           }
-
-          return d.promise();
+          return null;
       }
 
-      /**
-       * Get files of a folder
-       * @param $folderInput
-       * @returns promise
-       */
-      function getFiles(selectedFolder, removeFolders = true)
-      {
-          let d = $.Deferred();
-          fs.readdir(selectedFolder, (err, files) => {
-              if (err == null){
-                  console.log(files);
-                  if(typeof files != 'undefined' && files && files.length > 0){
-                      if(!removeFolders){
-                          d.resolve(files);
-                      } else {
-                          let folderFiles = [];
-                          for (let folderFile of files) {
-                              let i = 0;
-                              fs.stat(selectedFolder + '\\' + folderFile, (err2, stats) => {
-                                  i++;
-                                  if(err2 == null && stats.isFile()){
-                                      folderFiles.push(folderFile);
-                                  }
-                                  if(i == files.length){ // resolve on last iteration
-                                      d.resolve(folderFiles);
-                                  }
-                              });
-                          }
-                      }
-                  }
-              } else {
-                  console.log('Error: '+error.message);
-              }
-          })
-          return d.promise();
-      }
-
-      /**
-       * Get taken date
-       * @param imgPath string
-       * @returns promise
-       */
-      function getTakenDate(imgPath)
-      {
-          let d = $.Deferred();
-          try {
-              new ExifImage({image : imgPath}, function (error, exifData) {
-                  if (error == null){
-                      if(exifData.exif && exifData.exif.DateTimeOriginal){
-                          d.resolve(exifData.exif.DateTimeOriginal);
-                      }
-                  } else {
-                      console.log('Error: '+error.message);
-                  }
-              });
-          } catch (error) {
-              console.log('Error: ' + error.message);
-          }
-
-          return d.promise();
-      }
-
-      /**
-       * Get new file name (with taken date)
-       * @returns string
-       */
-      function getNewFileName(fileName, takenDate)
-      {
-          let newName;
-
-          // format taken date str
-          // takenDate = takenDate.split(':').join('').split(' ').join('');
-          takenDate = takenDate.replace(/[: ]/g, '');
-
-          // check if filename already has this date
-          let datePos = fileName.indexOf(takenDate.substr(0, 8));
-          if(datePos < 0){ // not date
-              newName = takenDate + '_' + fileName;
-          } else if(datePos > 1){ // taken date first
-              let fileNameNoDate = fileName.replace(takenDate.substr(0, 8), '');
-              newName = takenDate + '_' + fileNameNoDate;
-          } else { // the file starts with its date
-              if(fileName.indexOf('DSC') >= 0){ // already renamed
-                  console.log(fileName+' ya tiene fecha');
-              } else {
-                  newName = fileName.replace(/_/g, ''); // fix samsung date format
-              }
-          }
-
-          return newName;
-      }
-
-      /**
-       * rename image
-       * @returns promise
-       */
-      function renameImage(filePath, fileName, takenDate)
-      {
-          let d = $.Deferred();
-          let newName = getNewFileName(fileName, takenDate);
-
-          if($('#do-rename').is(':checked')){
-              // rename...
-              if(newName){
-                  let newFilePath = filePath.replace(fileName, newName);
-                  fs.rename(filePath, newFilePath, (err) => {
-                      if (err == null){
-                          d.resolve(newName);
-                      } else {
-                          console.log('ERROR: ' + err);
-                          d.reject();
-                      }
-                  });
-              } else {
-                  d.reject();
-              }
-          } else {
-              d.resolve(newName); // only show the new name
-          }
-
-          return d.promise();
-      }
-
-
-
-      let $pf = $('#photos-folder');
-      $pf.on('change', (e) => {
-          getFolder($pf)
-              .done((selectedFolder) => {
-                  getFiles(selectedFolder)
-                      .done((selectedFolderFiles) => {
-                          let $fileList = $('<ul>');
-                          for (let fileName of selectedFolderFiles) {
-                              let $fileItem = $('<li>');
-                              let filePath = selectedFolder + '\\' + fileName;
-                              $fileItem.html('<b>'+fileName+'</b>');
-                              // $fileItem.append(' <span class="gray">' + (stats.isFile() ? 'file' : 'dir') + '</span>');
-                              getTakenDate(filePath)
-                                  .done((takenDate) => {
-                                      $fileItem.append(' <span class="gray">' + takenDate + '</span>');
-                                      renameImage(filePath, fileName, takenDate)
-                                          .done((newName) => {
-                                              $fileItem.append(' <span class="cyan">' + newName + '</span>');
-                                          })
-                                      ;
-                                  });
-                              $fileList.append($fileItem);
-                          }
-                          $('#files').append($fileList);
-                      })
-                  ;
-              })
-          ;
-      });
-
-//
-//        // send event to main window
-//        /*const {ipcRenderer} = require('electron');
-//        let params = {'folder': pfFiles[0].path};
-//        console.log('send event to main window', params);
-//        ipcRenderer.send('ri-folder-selected', params);*/
-//
   </script>
 </html>

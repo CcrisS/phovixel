@@ -2,45 +2,15 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>My Photos</title>
-    <link rel="stylesheet" href="assets/css/app.css">
+    <title>Manage Photos</title>
+    <link rel="stylesheet" href="../assets/css/app.css">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
 </head>
 <body>
-<h1 class="title">My Photos</h1>
-<h3 class="title">Rename photos of a folder:
-    <span id="folder"></span>
-</h3>
-
+    <h1 class="title">Rename photos of a folder</h1>
+    <h3 class="title"></h3>
+    <section id="files"></section>
 </body>
-<script type="application/javascript">
-    const {ipcRenderer} = require('electron');
-    ipcRenderer.on('ri-load', (event, params) => {
-        document.getElementById('folder').innerHTML = params.folder;
-
-
-    });
-
-
-    // require other files to run in this process
-    require('./scripts/rename-images.js');
-
-    // console.log(global.location.search);
-
-
-//    var fs = require('fs');
-//    fs.readFile('/path/to/countries.json', function(error, data) {
-//        if (error) {
-//            console.log(error);
-//            return;
-//        }
-//
-//        var obj = JSON.parse(data);
-//        for(var p in yourObject) {
-//            fs.rename('/path/to/' + obj[p] + '.png', '/path/to/' + p + '.png', function(err) {
-//                if ( err ) console.log('ERROR: ' + err);
-//            });
-//        }
-//    });
-
-</script>
+<script>window.$ = window.jQuery = require('jquery');</script>
+<script src="rename-images.js"></script>
 </html>

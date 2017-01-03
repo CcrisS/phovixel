@@ -2,11 +2,7 @@ const {app, BrowserWindow, ipcMain} = require('electron');
 const path = require('path');
 const url = require('url');
 
-//const windowStateKeeper = require('electron-window-state');
-//const pjson = require('./package.json');
-
 let mainWindow; // Keep a global reference of the window object.
-
 function createMainWindow () {
 
   // Create the browser window.
@@ -16,32 +12,6 @@ function createMainWindow () {
     title: app.getName(),
     icon: path.join(__dirname, '/app/assets/img/icon.png')
   });
-
-  // Load the previous window state with fallback to defaults
-  //let mainWindowState = windowStateKeeper({
-  //  defaultWidth: 1024,
-  //  defaultHeight: 768
-  //});
-
-  //try{
-  //  win = new BrowserWindow({
-  //    'width': mainWindowState.width,
-  //    'height': mainWindowState.height,
-  //    'x': mainWindowState.x,
-  //    'y': mainWindowState.y,
-  //    'title': app.getName(),
-  //    'icon': path.join(__dirname, '/app/assets/img/icon.png'),
-  //    'show': false, // Hide your application until your page has loaded
-  //    'webPreferences': {
-  //      'nodeIntegration': pjson.config.nodeIntegration || true, // Disabling node integration allows to use libraries such as jQuery/React, etc
-  //      'preload': path.resolve(path.join(__dirname, 'preload.js'))
-  //    }
-  //  });
-  //} catch (e) {
-  //  console.log(e);
-  //}
-
-  // mainWindowState.manage(win);
 
   // Load the index.html of the app.
   mainWindow.loadURL(url.format({
@@ -72,10 +42,7 @@ app.on('activate', () => {
   }
 });
 
-/**
- * "ri" events
- */
-// Folder selected
+// "ri" window
 let riWindow;
 ipcMain.on('ri-folder-selected', (event, params) => {
   if (riWindow) { // opened yet
@@ -83,7 +50,7 @@ ipcMain.on('ri-folder-selected', (event, params) => {
   }
 
   //console.log('event listened, params: ', params);
-  riWindow = new BrowserWindow({height: 300, width: 500, parent: mainWindow});
+  riWindow = new BrowserWindow({height: 600, width: 800, parent: mainWindow});
   riWindow.loadURL('file://' + __dirname + '/scripts/rename-images.html');
   riWindow.webContents.on('did-finish-load', () => {
     riWindow.webContents.send('ri-load' , params);
