@@ -11,25 +11,37 @@ function renameAllImages(selectedFolder, doRename)
     $('h3.title').text(selectedFolder);
 
     getFiles(selectedFolder)
-        .done((selectedFolderFiles) => {
+        .done(selectedFolderFiles => {
             let $fileList = $('<ul>');
             for (let fileName of selectedFolderFiles) {
                 let $fileItem = $('<li>');
                 let filePath = selectedFolder + '\\' + fileName;
-                $fileItem.html('<b>'+fileName+'</b>');
+                $fileItem.html('<b>'+fileName+'</b> ');
                 // $fileItem.append(' <span class="gray">' + (stats.isFile() ? 'file' : 'dir') + '</span>');
                 getTakenDate(filePath)
-                    .done((takenDate) => {
-                        $fileItem.append(' <span class="gray">' + takenDate + '</span>');
+                    .done(takenDate => {
+                        $fileItem.append('<span class="gray">' + takenDate + '</span> ');
                         renameImage(filePath, fileName, takenDate, doRename)
-                            .done((newName) => {
-                                $fileItem.append(' <span class="cyan">' + newName + '</span>');
+                            .done(newName => {
+                                console.log('done result', newName);
+                                $fileItem.append('<span class="cyan">' + newName + '</span> ');
+                            })
+                            .fail((errorMsg) => {
+                                console.log('fail result', errorMsg);
+                                $fileItem.append('<span class="error">' + errorMsg + '</span> ');
                             })
                         ;
-                    });
+                    })
+                    .fail(errorMsg => {
+                        $fileItem.append('<span class="error">' + errorMsg + '</span> ');
+                    })
+                ;
                 $fileList.append($fileItem);
             }
             $('#files').append($fileList);
+        })
+        .fail(errorMsg => {
+            $('#files').append('<span class="error">' + errorMsg + '</span>');
         })
     ;
 }
@@ -52,7 +64,7 @@ function getFiles(selectedFolder, removeFolders = true)
                 } else {
                     let folderFiles = [];
                     for (let folderFile of files) {
-                        let i = 0;
+                        var i = 0;
                         fs.stat(selectedFolder + '\\' + folderFile, (err2, stats) => {
                             i++;
                             if(err2 == null && stats.isFile()){
@@ -66,9 +78,10 @@ function getFiles(selectedFolder, removeFolders = true)
                 }
             }
         } else {
-            console.log('Error: '+error.message);
+            d.reject(err.message);
         }
-    })
+    });
+
     return d.promise();
 }
 
@@ -85,13 +98,16 @@ function getTakenDate(imgPath)
             if (error == null){
                 if(exifData.exif && exifData.exif.DateTimeOriginal){
                     d.resolve(exifData.exif.DateTimeOriginal);
+                } else {
+                    d.reject('no exif data');
                 }
             } else {
-                console.log('Error: '+error.message);
+                d.reject(error.message);
             }
         });
     } catch (error) {
         console.log('Error: ' + error.message);
+        d.reject(error.message);
     }
 
     return d.promise();
@@ -99,32 +115,26 @@ function getTakenDate(imgPath)
 
 /**
  * Get new file name (with taken date)
- * @returns string
+ * @returns string|null
  */
 function getNewFileName(fileName, takenDate)
 {
-    let newName;
-
     // format taken date str
-    // takenDate = takenDate.split(':').join('').split(' ').join('');
     takenDate = takenDate.replace(/[: ]/g, '');
 
     // check if filename already has this date
     let datePos = fileName.indexOf(takenDate.substr(0, 8));
-    if(datePos < 0){ // not date
-        newName = takenDate + '_' + fileName;
-    } else if(datePos > 1){ // taken date first
-        let fileNameNoDate = fileName.replace(takenDate.substr(0, 8), '');
-        newName = takenDate + '_' + fileNameNoDate;
-    } else { // the file starts with its date
+    if(datePos == 0){ // the file starts with its date
         if(fileName.indexOf('DSC') >= 0){ // already renamed
-            console.log(fileName+' ya tiene fecha');
-        } else {
-            newName = fileName.replace(/_/g, ''); // fix samsung date format
+            return null;
         }
+        return fileName.replace(/_/g, ''); // fix samsung date format
+    } else if(datePos > 1){ // the file has the date in other position
+        let fileNameNoDate = fileName.replace(takenDate.substr(0, 8), ''); // taken date first
+        return takenDate + '_' + fileNameNoDate;
     }
 
-    return newName;
+    return takenDate + '_' + fileName;
 }
 
 /**
@@ -134,25 +144,19 @@ function getNewFileName(fileName, takenDate)
 function renameImage(filePath, fileName, takenDate, doRename)
 {
     let d = $.Deferred();
-    let newName = getNewFileName(fileName, takenDate);
+    let newName = getNewFileName(fileName, takenDate, d);
 
-    if(doRename){
-        // rename...
-        if(newName){
+    if(newName != null){
+        if(doRename){ // rename...
             let newFilePath = filePath.replace(fileName, newName);
             fs.rename(filePath, newFilePath, (err) => {
-                if (err == null){
-                    d.resolve(newName);
-                } else {
-                    console.log('ERROR: ' + err);
-                    d.reject();
-                }
+                (err == null) ? d.resolve(newName) : d.reject(err);
             });
         } else {
-            d.reject();
+            d.resolve(newName); // only show the new name
         }
     } else {
-        d.resolve(newName); // only show the new name
+        d.reject('already renamed');
     }
 
     return d.promise();
