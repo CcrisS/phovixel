@@ -11,21 +11,15 @@
 
         <h3 class="title">Rename photos of a folder</h3>
         <form class="form" action="#">
-            <!--<input id="photos-folder-txt" type="text" name="photos_folder" placeholder="Photos folder..." />-->
+            <input id="photos-folder-txt" class="input-size-m" type="text" name="photos_folder" placeholder="Photos folder..." />
             <label class="custom-file-upload">
                 <input id="photos-folder" type="file" webkitdirectory />
                 <i class="fa fa-folder-open"></i> Select folder
             </label>
-            <label>
-                <input type="checkbox" id="do-rename" name="do-rename" value="1" /> Do rename
-            </label>
             <br /><br />
-            <!--<button class="btn" type="submit">Rename!</button>-->
+            <button id="show-files-btn" class="btn">Show files</button>
+            <button id="rename-btn" class="btn">Rename!</button>
         </form>
-        <hr />
-        <section id="files">
-          <h4 class="title"></h4>
-        </section>
 
         <footer>
             <!-- All of the Node.js APIs are available in this renderer process. -->
@@ -41,18 +35,29 @@
   <script>
 
       let $pf = $('#photos-folder');
+      let $pft = $('#photos-folder-txt');
       $pf.on('change', (e) => {
-          let selectedFolder = getFolder($pf);
+          selectedFolder = getFolder($pf);
+          $pft.val(selectedFolder);
+      });
 
+      $('#show-files-btn').on('click', () => {
+          onSelectedFolder($pft.val());
+      });
+      $('#rename-btn').on('click', () => {
+          onSelectedFolder($pft.val(), true);
+      });
+
+      function onSelectedFolder(selectedFolder, doRename = false)
+      {
           // send event to main window
           if(selectedFolder){
               const {ipcRenderer} = require('electron');
-              let params = {'folder': selectedFolder, 'doRename': $('#do-rename').is(':checked')};
+              let params = {'folder': selectedFolder, 'doRename': doRename};
               console.log('send event to main window', params);
               ipcRenderer.send('ri-folder-selected', params);
           }
-      });
-
+      }
 
       /**
        * Get selected folder
