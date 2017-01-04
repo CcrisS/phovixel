@@ -1,14 +1,16 @@
 let ExifImage = require('exif').ExifImage;
 let fs = require('fs');
+let path = require("path");
 
 const {ipcRenderer} = require('electron');
 ipcRenderer.on('ri-load', (event, params) => {
-    renameAllImages(params.folder, params.doRename);
+    let $container = $('#files');
+    renameAllImages(params.folder, params.doRename, $container);
 });
 
-function renameAllImages(selectedFolder, doRename)
+function renameAllImages(selectedFolder, doRename, $container)
 {
-    $('h3.title').text(selectedFolder);
+    $container.append('<h3 class="title">'+selectedFolder+'</h3>');
 
     getFiles(selectedFolder)
         .done(selectedFolderFiles => {
@@ -16,10 +18,9 @@ function renameAllImages(selectedFolder, doRename)
             for (let fileName of selectedFolderFiles) {
                 let $fileItem = $('<li>');
                 let filePath = selectedFolder + '\\' + fileName;
-                $fileItem.html('<b>'+fileName+'</b> ');
-                // $fileItem.append(' <span class="gray">' + (stats.isFile() ? 'file' : 'dir') + '</span>');
                 getTakenDate(filePath)
                     .done(takenDate => {
+                        $fileItem.html('<b>'+fileName+'</b> ');
                         $fileItem.append('<span class="gray">' + takenDate + '</span> ');
                         renameImage(filePath, fileName, takenDate, doRename)
                             .done(newName => {
@@ -31,17 +32,24 @@ function renameAllImages(selectedFolder, doRename)
                                 $fileItem.append('<span class="error">' + errorMsg + '</span> ');
                             })
                         ;
+                        $fileList.append($fileItem);
                     })
-                    .fail(errorMsg => {
-                        $fileItem.append('<span class="error">' + errorMsg + '</span> ');
+                    .fail((errorMsg, isDirectory) => {
+                        if(errorMsg != null){
+                            $fileItem.append('<span class="error">' + errorMsg + '</span> ');
+                            $fileList.append($fileItem);
+                        } else { // sub-folder
+                            let $newContainer = $('<article>').addClass('sub-folder');
+                            $container.append($newContainer);
+                            renameAllImages(filePath, doRename, $newContainer);
+                        }
                     })
                 ;
-                $fileList.append($fileItem);
             }
-            $('#files').append($fileList);
+            $container.append($fileList);
         })
         .fail(errorMsg => {
-            $('#files').append('<span class="error">' + errorMsg + '</span>');
+            $container.append('<span class="error">' + errorMsg + '</span>');
         })
     ;
 }
@@ -94,10 +102,10 @@ function getTakenDate(imgPath)
         .fail(() => { // no exif data
             fs.stat(imgPath, (err, stats) => {
                 if(err != null){
-                    d2.reject(err);
+                    d2.reject(err, false);
                 } else {
-                    if(!stats.isFile()){
-                        d2.reject('it\'s a directory');
+                    if(stats.isDirectory()){
+                        d2.reject(null, true);
                     } else {
                         stats.mtime.setHours(stats.mtime.getHours() + 1); // gmt +01
                         d2.resolve(stats.mtime.toISOString()); //2016-07-06T08:15:42.088Z
@@ -125,7 +133,7 @@ function getNewFileName(fileName, takenDate)
     // check if filename already has this date
     let datePos = fileName.indexOf(takenDate.substr(0, 8));
     if(datePos == 0){ // the file starts with its date
-        if(fileName.indexOf('DSC') >= 0){ // already renamed
+        if(fileName.indexOf(takenDate) == 0){ // already renamed
             return null;
         }
         return fileName.replace(/_/g, ''); // fix samsung date format
