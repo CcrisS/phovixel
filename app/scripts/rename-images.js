@@ -48,34 +48,17 @@ function renameAllImages(selectedFolder, doRename)
 
 /**
  * Get files of a folder
- * @returns promise
  * @param selectedFolder
- * @param removeFolders
+ * @returns promise
  */
-function getFiles(selectedFolder, removeFolders = true)
+function getFiles(selectedFolder)
 {
     let d = $.Deferred();
     fs.readdir(selectedFolder, (err, files) => {
         if (err == null){
             console.log(files);
             if(typeof files != 'undefined' && files && files.length > 0){
-                if(!removeFolders){
-                    d.resolve(files);
-                } else {
-                    let folderFiles = [];
-                    for (let folderFile of files) {
-                        var i = 0;
-                        fs.stat(selectedFolder + '\\' + folderFile, (err2, stats) => {
-                            i++;
-                            if(err2 == null && stats.isFile()){
-                                folderFiles.push(folderFile);
-                            }
-                            if(i == files.length){ // resolve on last iteration
-                                d.resolve(folderFiles);
-                            }
-                        });
-                    }
-                }
+                d.resolve(files);
             }
         } else {
             d.reject(err.message);
@@ -93,24 +76,41 @@ function getFiles(selectedFolder, removeFolders = true)
 function getTakenDate(imgPath)
 {
     let d = $.Deferred();
-    try {
-        new ExifImage({image : imgPath}, function (error, exifData) {
-            if (error == null){
-                if(exifData.exif && exifData.exif.DateTimeOriginal){
-                    d.resolve(exifData.exif.DateTimeOriginal);
-                } else {
-                    d.reject('no exif data');
-                }
+    new ExifImage({image : imgPath}, function (err, exifData) {
+        if(err != null) {
+            d.reject(err.message);
+        } else {
+            if(exifData.exif && exifData.exif.DateTimeOriginal){
+                d.resolve(exifData.exif.DateTimeOriginal);
             } else {
-                d.reject(error.message);
+                d.reject('no exif data');
             }
-        });
-    } catch (error) {
-        console.log('Error: ' + error.message);
-        d.reject(error.message);
-    }
+        }
+    });
 
-    return d.promise();
+    // videos and other files
+    let d2 = $.Deferred();
+    d.promise()
+        .fail(() => { // no exif data
+            fs.stat(imgPath, (err, stats) => {
+                if(err != null){
+                    d2.reject(err);
+                } else {
+                    if(!stats.isFile()){
+                        d2.reject('it\'s a directory');
+                    } else {
+                        stats.mtime.setHours(stats.mtime.getHours() + 1); // gmt +01
+                        d2.resolve(stats.mtime.toISOString()); //2016-07-06T08:15:42.088Z
+                    }
+                }
+            });
+        })
+        .done(takenDate => {
+            d2.resolve(takenDate);
+        })
+    ;
+
+    return d2.promise();
 }
 
 /**
@@ -120,7 +120,7 @@ function getTakenDate(imgPath)
 function getNewFileName(fileName, takenDate)
 {
     // format taken date str
-    takenDate = takenDate.replace(/[: ]/g, '');
+    takenDate = takenDate.replace(/[-T: ]/g,'').slice(0, 14);
 
     // check if filename already has this date
     let datePos = fileName.indexOf(takenDate.substr(0, 8));
