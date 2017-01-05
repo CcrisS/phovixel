@@ -1,10 +1,24 @@
 {
-  "name": "manage-images",
+  "name": "my-photos",
   "version": "1.0.0",
-  "description": "manage photos",
+  "description": "manage photos and videos",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "electron .",
+    "test": "\"echo \\\"Error: no test specified\\\" && exit 1\""
   },
-  "author": "csd"
+  "repository": {
+    "type": "git",
+    "url": "git+https://CcrisS@bitbucket.org/CcrisS/electron.git"
+  },
+  "author": "CcrisS",
+  "homepage": "https://bitbucket.org/CcrisS/electron#readme",
+  "devDependencies": {
+    "electron": "^1.4.13",
+    "electron-packager": "^8.4.0"
+  },
+  "dependencies": {
+    "exif": "^0.6.0",
+    "jquery": "^3.1.1"
+  }
 }

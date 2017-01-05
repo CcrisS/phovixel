@@ -14,3 +14,4 @@
 - [ ] Get folder separator character `(/|\)`
 - [ ] Only image and video file extensions
 - [ ] require('electron-window-state');
+- [ ] [Packaging and distribution](http://electron.rocks/electron-angular-packing-and-distribution/)

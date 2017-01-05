@@ -15,12 +15,12 @@ function createMainWindow () {
 
   // Load the index.html of the app.
   mainWindow.loadURL(url.format({
-    pathname: path.join(__dirname, 'index.html'),
+    pathname: path.join(__dirname, 'app/index.html'),
     protocol: 'file:',
     slashes: true
   }));
 
-  mainWindow.webContents.openDevTools(); // Open the DevTools.
+  // mainWindow.webContents.openDevTools(); // Open the DevTools.
 
   mainWindow.on('closed', () => { // When the window is closed.
     mainWindow = null
@@ -51,7 +51,7 @@ ipcMain.on('ri-folder-selected', (event, params) => {
 
   //console.log('event listened, params: ', params);
   riWindow = new BrowserWindow({height: 600, width: 800, parent: mainWindow});
-  riWindow.loadURL('file://' + __dirname + '/scripts/rename-images.html');
+  riWindow.loadURL('file://' + __dirname + '/app/rename-images.html');
   riWindow.webContents.on('did-finish-load', () => {
     riWindow.webContents.send('ri-load' , params);
   });
