@@ -1,6 +1,10 @@
 let ExifImage = require('exif').ExifImage;
 let fs = require('fs');
 let path = require("path");
+const fileExtensions = [
+    '.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tif', // images
+    '.webm', '.flv', '.ogg', '.wmv', '.mp4', '.m4p', '.m4v', '.mpg', '.mpeg', '.3gp' // videos
+];
 
 const {ipcRenderer} = require('electron');
 ipcRenderer.on('ri-load', (event, params) => {
@@ -17,18 +21,16 @@ function renameAllImages(selectedFolder, doRename, $container)
             let $fileList = $('<ul>');
             for (let fileName of selectedFolderFiles) {
                 let $fileItem = $('<li>');
-                let filePath = selectedFolder + '\\' + fileName;
+                let filePath = selectedFolder + path.sep + fileName;
                 getTakenDate(filePath)
                     .done(takenDate => {
                         $fileItem.html('<b>'+fileName+'</b> ');
                         $fileItem.append('<span class="gray">' + takenDate + '</span> ');
                         renameImage(filePath, fileName, takenDate, doRename)
                             .done(newName => {
-                                console.log('done result', newName);
                                 $fileItem.append('<span class="cyan">' + newName + '</span> ');
                             })
                             .fail((errorMsg) => {
-                                console.log('fail result', errorMsg);
                                 $fileItem.append('<span class="error">' + errorMsg + '</span> ');
                             })
                         ;
@@ -64,7 +66,6 @@ function getFiles(selectedFolder)
     let d = $.Deferred();
     fs.readdir(selectedFolder, (err, files) => {
         if (err == null){
-            console.log(files);
             if(typeof files != 'undefined' && files && files.length > 0){
                 d.resolve(files);
             }
@@ -85,14 +86,10 @@ function getTakenDate(imgPath)
 {
     let d = $.Deferred();
     new ExifImage({image : imgPath}, function (err, exifData) {
-        if(err != null) {
-            d.reject(err.message);
+        if(err == null && exifData.exif && exifData.exif.DateTimeOriginal){
+            d.resolve(exifData.exif.DateTimeOriginal);
         } else {
-            if(exifData.exif && exifData.exif.DateTimeOriginal){
-                d.resolve(exifData.exif.DateTimeOriginal);
-            } else {
-                d.reject('no exif data');
-            }
+            d.reject();
         }
     });
 
@@ -152,16 +149,20 @@ function getNewFileName(fileName, takenDate)
 function renameImage(filePath, fileName, takenDate, doRename)
 {
     let d = $.Deferred();
-    let newName = getNewFileName(fileName, takenDate, d);
+    let newName = getNewFileName(fileName, takenDate);
 
     if(newName != null){
-        if(doRename){ // rename...
-            let newFilePath = filePath.replace(fileName, newName);
-            fs.rename(filePath, newFilePath, (err) => {
-                (err == null) ? d.resolve(newName) : d.reject(err);
-            });
+        if(fileExtensions.indexOf(path.extname(fileName.toLowerCase())) >= 0){
+            if(doRename){ // rename...
+                let newFilePath = filePath.replace(fileName, newName);
+                fs.rename(filePath, newFilePath, (err) => {
+                    (err == null) ? d.resolve(newName) : d.reject(err);
+                });
+            } else { // only show the new name
+                d.resolve(newName);
+            }
         } else {
-            d.resolve(newName); // only show the new name
+            d.reject('extension not supported');
         }
     } else {
         d.reject('already renamed');
