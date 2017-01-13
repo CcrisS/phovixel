@@ -11,16 +11,29 @@
     "type": "git",
     "url": "git+https://CcrisS@bitbucket.org/CcrisS/electron.git",
     "package:windows": "./node_modules/.bin/electron-packager . --overwrite --asar=true --platform=win32 --arch=x64 --icon=app/img/icon.ico --prune=true --out=build --version-string.ProductName=\"My Photos - Electron App\"",
-    "package:mac": "./node_modules/.bin/electron-packager . --overwrite --asar=true --platform=darwin --arch=x64 --icon=app/img/icon.icns --prune=true --out=build"
+    "package:mac": "./node_modules/.bin/electron-packager . --overwrite --asar=true --platform=darwin --arch=x64 --icon=app/img/icon.icns --prune=true --out=build",
+    "build:windows": "./node_modules/.bin/build --win",
+    "build:mac": "./node_modules/.bin/build --mac", // only works on mac
+    "build:all": "./node_modules/.bin/build -mwl"
   },
   "author": "CcrisS",
   "homepage": "https://bitbucket.org/CcrisS/electron#readme",
   "devDependencies": {
     "electron": "^1.4.13",
+    "electron-builder": "^11.2.4",
     "electron-packager": "^8.4.0"
   },
   "dependencies": {
     "exif": "^0.6.0",
     "jquery": "^3.1.1"
+  },
+  "build": {
+    "mac": {
+      "category": "public.app-category.utilities",
+      "icon": "app/img/icon.icns"
+    },
+    "win": {
+      "icon": "app/img/icon.ico"
+    }
   }
 }
