@@ -9,7 +9,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://CcrisS@bitbucket.org/CcrisS/electron.git"
+    "url": "git+https://CcrisS@bitbucket.org/CcrisS/electron.git",
+    "package:windows": "./node_modules/.bin/electron-packager . --overwrite --asar=true --platform=win32 --arch=x64 --icon=app/img/icon.ico --prune=true --out=build --version-string.ProductName=\"My Photos - Electron App\"",
+    "package:mac": "./node_modules/.bin/electron-packager . --overwrite --asar=true --platform=darwin --arch=x64 --icon=app/img/icon.icns --prune=true --out=build"
   },
   "author": "CcrisS",
   "homepage": "https://bitbucket.org/CcrisS/electron#readme",

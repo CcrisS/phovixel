@@ -11,7 +11,10 @@
 - [ ] Each "promise" returns `(err, param)`
 - [x] Manage videos
 - [x] Manage subfolders (recursively)
-- [ ] Get folder separator character `(/|\)`
-- [ ] Only image and video file extensions
+- [x] Get folder separator character `(/|\)`
+- [x] Only image and video file extensions
 - [ ] require('electron-window-state');
 - [ ] [Packaging and distribution](http://electron.rocks/electron-angular-packing-and-distribution/)
+- [ ] Borrar directorio (electron-manage-images)
+- [ ] package:mac
+- [ ] usar electron-packager
