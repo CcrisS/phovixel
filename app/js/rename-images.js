@@ -89,6 +89,7 @@ function getTakenDate(imgPath)
 {
     let d = $.Deferred();
     new ExifImage({image : imgPath}, function (err, exifData) {
+        console.log('exif: ',exifData.exif);
         if(err == null && exifData.exif && exifData.exif.DateTimeOriginal){
             d.resolve(exifData.exif.DateTimeOriginal);
         } else {
@@ -142,10 +143,8 @@ function getNewFileName(fileName, takenDate)
         return takenDate + '_' + fileNameNoDate;
     }
 
-    // check if filename has other date
-    if(fileName.match(/20\d+/)){
-        fileName = fileName.replace(/20\d+/g, '');
-    }
+    // remove if has other dates
+    fileName = fileName.replace(/\D20\d+/g, '');
 
     // manage underscores
     fileName = fileName.replace(/__/g, '_'); // double underscores
