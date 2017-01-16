@@ -1,6 +1,6 @@
 let ExifImage = require('exif').ExifImage;
 let fs = require('fs');
-let path = require("path");
+let path = require('path');
 const fileExtensions = [
     '.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tif', // images
     '.webm', '.flv', '.ogg', '.wmv', '.mp4', '.m4p', '.m4v', '.mpg', '.mpeg', '.3gp' // videos
@@ -14,7 +14,8 @@ ipcRenderer.on('ri-load', (event, params) => {
 
 function renameAllImages(selectedFolder, doRename, $container)
 {
-    $container.append('<h3 class="title">'+selectedFolder+'</h3>');
+    $container.append('<h3 class="title">'+selectedFolder+' <span class="counter"></span></h3>');
+    $container.append('<div class="loading"><img src="./img/loading.gif" alt="loading..." /></div>');
 
     getFiles(selectedFolder)
         .done(selectedFolderFiles => {
@@ -35,8 +36,9 @@ function renameAllImages(selectedFolder, doRename, $container)
                             })
                         ;
                         $fileList.append($fileItem);
+                        $fileList.prev('.title').find('.counter').text($fileList.find('li').length);
                     })
-                    .fail((errorMsg, isDirectory) => {
+                    .fail((errorMsg) => {
                         if(errorMsg != null){
                             $fileItem.append('<span class="error">' + errorMsg + '</span> ');
                             $fileList.append($fileItem);
@@ -48,6 +50,7 @@ function renameAllImages(selectedFolder, doRename, $container)
                     })
                 ;
             }
+            $container.find('.loading').remove();
             $container.append($fileList);
         })
         .fail(errorMsg => {
@@ -99,10 +102,10 @@ function getTakenDate(imgPath)
         .fail(() => { // no exif data
             fs.stat(imgPath, (err, stats) => {
                 if(err != null){
-                    d2.reject(err, false);
+                    d2.reject(err);
                 } else {
                     if(stats.isDirectory()){
-                        d2.reject(null, true);
+                        d2.reject(null);
                     } else {
                         stats.mtime.setHours(stats.mtime.getHours() + 1); // gmt +01
                         d2.resolve(stats.mtime.toISOString()); //2016-07-06T08:15:42.088Z
