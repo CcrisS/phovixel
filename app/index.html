@@ -4,21 +4,26 @@
         <meta charset="UTF-8">
         <title>Manage Photos</title>
         <link rel="stylesheet" href="css/app.css">
-        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="css/font-awesome.min.css">
     </head>
     <body>
         <h1 class="title">Manage Photos</h1>
 
-        <h3 class="title">Rename photos of a folder</h3>
+        <h3 class="title">Select folder</h3>
         <form class="form" action="#">
             <input id="photos-folder-txt" class="input-size-m" type="text" name="photos_folder" placeholder="Photos folder..." />
             <label class="custom-file-upload">
                 <input id="photos-folder" type="file" webkitdirectory />
                 <i class="fa fa-folder-open"></i> Select folder
             </label>
+
             <br /><br />
-            <button id="show-files-btn" class="btn">Show files</button>
-            <button id="rename-btn" class="btn">Rename!</button>
+            <button id="show-files-btn" class="btn">
+                <i class="fa fa-list-ul"></i> Show files</button>
+            <button id="rename-btn" class="btn">
+                <i class="fa fa-file-image-o" aria-hidden="true"></i> Rename!</button>
+            <!--<button id="move-videos-btn" class="btn">-->
+                <!--<i class="fa fa-file-video-o" aria-hidden="true"></i> Move video files</button>-->
         </form>
 
         <footer>
