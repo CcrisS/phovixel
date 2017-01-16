@@ -139,6 +139,15 @@ function getNewFileName(fileName, takenDate)
         return takenDate + '_' + fileNameNoDate;
     }
 
+    // check if filename has other date
+    if(fileName.match(/20\d+/)){
+        fileName = fileName.replace(/20\d+/g, '');
+    }
+
+    // manage underscores
+    fileName = fileName.replace(/__/g, '_'); // double underscores
+    fileName = fileName.replace(/^_/, ''); // first underscore
+
     return takenDate + '_' + fileName;
 }
 

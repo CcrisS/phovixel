@@ -13,7 +13,7 @@
     "package:windows": "./node_modules/.bin/electron-packager . --overwrite --asar=true --platform=win32 --arch=x64 --icon=app/img/icon.ico --prune=true --out=build --version-string.ProductName=\"My Photos - Electron App\"",
     "package:mac": "./node_modules/.bin/electron-packager . --overwrite --asar=true --platform=darwin --arch=x64 --icon=app/img/icon.icns --prune=true --out=build",
     "build:windows": "./node_modules/.bin/build --win",
-    "build:mac": "./node_modules/.bin/build --mac", // only works on mac
+    "build:mac": "./node_modules/.bin/build --mac",
     "build:all": "./node_modules/.bin/build -mwl"
   },
   "author": "CcrisS",
