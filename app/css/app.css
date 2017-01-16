@@ -6,14 +6,21 @@ footer ul { padding: 0; margin: 0; display: block; }
 .gray { color: #bbb }
 .cyan { color: darkcyan }
 .error { color: darkorange }
+.text-center { text-align: center}
+
+/* Common */
+.loading { margin-top: 10px; }
+.loading img { width: 120px; }
+.counter { background: #bbb; color: white; border-radius: 6px; padding: 2px 6px; font-size: 0.8em; margin-left: 4px; }
 
 /* Titles */
 h1.title { color: gray }
 h3.title { color: darkcyan }
 
 /* Buttons */
-.btn { align-self: flex-start; border: 0; border-radius: 4px; font: inherit;
-    font-size: 1.2em; padding: .3em 1em; color: white; background-color: darkcyan; cursor: pointer}
+.btn { align-self: flex-start; border: 0; border-radius: 4px; font: inherit; font-weight: normal;
+    font-size: 1.1em; padding: .3em 1em; color: white; background-color: darkcyan; cursor: pointer}
+.btn .fa { font-size: .8em; margin-right: 5px; }
 
 /* Forms */
 input[type="text"] { appearance: none; box-shadow: none; border-radius: 4px; padding: 7px;

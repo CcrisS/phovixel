@@ -44,14 +44,20 @@ app.on('activate', () => {
 
 // "ri" window
 let riWindow;
+// params = {'folder', 'doRename', 'moveVideos'};
 ipcMain.on('ri-folder-selected', (event, params) => {
   if (riWindow) { // opened yet
     return;
   }
 
-  //console.log('event listened, params: ', params);
+  // template
+  let template = '/app/rename-images.html';
+  if(params.moveVideos){
+    template = '/app/move-videos.html';
+  }
+
   riWindow = new BrowserWindow({height: 600, width: 800, parent: mainWindow});
-  riWindow.loadURL('file://' + __dirname + '/app/rename-images.html');
+  riWindow.loadURL('file://' + __dirname + template);
   riWindow.webContents.on('did-finish-load', () => {
     riWindow.webContents.send('ri-load' , params);
   });

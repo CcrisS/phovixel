@@ -2,6 +2,7 @@ let $pf = $('#photos-folder');
 let $pft = $('#photos-folder-txt');
 let $bshowffiles = $('#show-files-btn');
 let $brename = $('#rename-btn');
+let $bmovevideos = $('#move-videos-btn')
 
 /** Events **/
 $pf.on('change', (e) => {
@@ -14,13 +15,16 @@ $bshowffiles.on('click', () => {
 $brename.on('click', () => {
     onSelectedFolder($pft.val(), true);
 });
+$bmovevideos.on('click', () => {
+    onSelectedFolder($pft.val(), false, true);
+});
 
-function onSelectedFolder(selectedFolder, doRename = false)
+function onSelectedFolder(selectedFolder, doRename = false, moveVideos = false)
 {
     // send event to main window
     if(selectedFolder){
         const {ipcRenderer} = require('electron');
-        let params = {'folder': selectedFolder, 'doRename': doRename};
+        let params = {'folder': selectedFolder, 'doRename': doRename, 'moveVideos': moveVideos};
         console.log('send event to main window', params);
         ipcRenderer.send('ri-folder-selected', params);
     }
