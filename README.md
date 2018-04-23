@@ -1,20 +1,32 @@
-# csd } manage-photos
+# PhoviXel
 
-## ri } Rename images
+Rename your photos and videos by its taken date recursively.
+
+## Functionality
+
+### {ri} Rename images and videos
 1. Select folder
-2. The program renames all the image files to: `taken_date + previous_name`
+2. The app renames all the image and video files to: `taken_date + previous_name`
+
+### {mv} Move videos
+1. Select folder
+2. The app moves all the video files to a separate "videos" folder.
+
+## How to build the app
+
+`npm run package:windows`
+
+
+## Built With
+
+* [Electron js](https://electronjs.org/) - Build cross platform desktop apps with JavaScript, HTML, and CSS
+* Electron uses [Chromium](https://www.chromium.org/Home) and [Node.js](https://nodejs.org/)
+
+----------
 
 #### toDo
 
-- [x] Include jQuery
-- [x] Include promises in `index.html`
 - [ ] Each "promise" returns `(err, param)`
-- [x] Manage videos
-- [x] Manage subfolders (recursively)
-- [x] Get folder separator character `(/|\)`
-- [x] Only image and video file extensions
 - [ ] require('electron-window-state');
 - [ ] [Packaging and distribution](http://electron.rocks/electron-angular-packing-and-distribution/)
-- [ ] Borrar directorio (electron-manage-images)
-- [ ] package:mac
-- [ ] usar electron-packager
+- [ ] electron-packager
